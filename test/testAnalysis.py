@@ -1,5 +1,5 @@
 import os,sys
-sys.path.append(os.path.abspath(__file__).rsplit('/xuAnalysis/',1)[0]+'/xuAnalysis/')
+sys.path.append(os.path.abspath(__file__).rsplit('/ttCMSDAS/',1)[0]+'/ttCMSDAS/')
 from framework.analysis import analysis
 import framework.functions as fun
 from ROOT import TLorentzVector
