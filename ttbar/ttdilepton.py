@@ -29,6 +29,10 @@ class ttdilepton(analysis):
     self.CreateTH1F("InvMass",  "", 60, 0, 300)
     self.CreateTH1F("DilepPt",  "", 40, 0, 200)
     self.CreateTH1F("DeltaPhi", "", 20, 0, 1)
+
+    #New histograms
+    self.CreateTH1F("Y_MuonIso", "", 3, 0, 3)
+    
     
     self.CreateTH1F("Y_MatrixEl", "", 9, 0, 9) 
     ## 4 = nominal    
@@ -43,6 +47,8 @@ class ttdilepton(analysis):
     ''' Fill all the histograms. Take the inputs from lepton list, jet list, pmet '''
     if not len(leptons) >= 2: return # Just in case
     self.weight = self.EventWeight * self.SFmuon * self.SFelec * self.PUSF # * self.SFlhe
+    self.weight_MuonIsoUp = self.EventWeight * (self.SFmuon+self.SFmuonErr) * self.SFelec * self.PUSF # * self.SFlhe
+    self.weight_MuonIsoDown = self.EventWeight * (self.SFmuon-self.SFmuonErr) * self.SFelec * self.PUSF # * self.SFlhe
     
     # Re-calculate the observables
     lep0  = leptons[0]; lep1 = leptons[1]
@@ -64,6 +70,10 @@ class ttdilepton(analysis):
     for ii in range(9):
         if ii == 6 or ii == 2: continue     ## skip the unphysical values (2-0.5 and 0.5, 2)
         self.obj['Y_MatrixEl'].Fill(ii + 0.5, self.weight * self.SFlhe[ii])
+
+    self.obj['Y_MuonIso'].Fill(0, self.weight)
+    self.obj['Y_MuonIso'].Fill(1, self.weight_MuonIsoUp)
+    self.obj['Y_MuonIso'].Fill(2, self.weight_MuonIsoDown)
 
   def insideLoop(self, t):
     self.resetObjects()
