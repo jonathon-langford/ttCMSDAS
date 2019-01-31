@@ -29,6 +29,9 @@ class ttdilepton(analysis):
     self.CreateTH1F("InvMass",  "", 60, 0, 300)
     self.CreateTH1F("DilepPt",  "", 40, 0, 200)
     self.CreateTH1F("DeltaPhi", "", 20, 0, 1)
+    
+    self.CreateTH1F("Y_MatrixEl", "", 9, 0, 9) 
+    ## 4 = nominal    
 
   def resetObjects(self):
     ''' Reset the list where the objects are stored '''
@@ -39,8 +42,8 @@ class ttdilepton(analysis):
   def FillHistograms(self, leptons, jets, pmet):
     ''' Fill all the histograms. Take the inputs from lepton list, jet list, pmet '''
     if not len(leptons) >= 2: return # Just in case
-    self.weight = self.EventWeight * self.SFmuon * self.SFelec * self.PUSF
-
+    self.weight = self.EventWeight * self.SFmuon * self.SFelec * self.PUSF # * self.SFlhe
+    
     # Re-calculate the observables
     lep0  = leptons[0]; lep1 = leptons[1]
     l0pt  = lep0.Pt();  l1pt  = lep1.Pt()
@@ -57,6 +60,10 @@ class ttdilepton(analysis):
     self.obj["InvMass"].Fill(mll, self.weight)
     self.obj['DilepPt'].Fill(dipt, self.weight)
     self.obj['DeltaPhi'].Fill(dphi/3.141592, self.weight)
+
+    for ii in range(9):
+        if ii == 6 or ii == 2: continue     ## skip the unphysical values (2-0.5 and 0.5, 2)
+        self.obj['Y_MatrixEl'].Fill(ii + 0.5, self.weight * self.SFlhe[ii])
 
   def insideLoop(self, t):
     self.resetObjects()
@@ -130,7 +137,12 @@ class ttdilepton(analysis):
       self.PUDoSF = t.puWeightDown
     else:
       self.PUSF   = 1; self.PUUpSF = 1; self.PUDoSF = 1
-
+    
+    self.SFlhe = [1]*9
+    #LHE weights
+    if not self.isData:
+        self.SFlhe = t.LHEScaleWeight
+    
     ### Event selection
     ###########################################
     
